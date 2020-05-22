@@ -19,7 +19,7 @@ print('Used: %i GiB' % int(hdd.used / (2**30)))
 print('Free: %i GiB' % int(hdd.free / (2**30)))
 #
 # abort if not enough space (size of the dataset + decompress folder aprox 50gb)
-if int(hdd.free / (2**30)) > 50:
+if int(hdd.free / (2**30)) < 50:
     print('The current drive does not have enough space to alocate the dataset.')
     sys.exit(0)
 # 
