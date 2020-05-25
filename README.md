@@ -12,7 +12,7 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 `(echo "import torch"; echo "torch.cuda.is_available()") | python3 -i`
 
-- Double check you have pytorch 1.5 is available in your system.
+- Double check you have pytorch 1.5 installed in your system.
 
 `(echo "import torch"; echo "torch.__version__") | python3 -i`
 
