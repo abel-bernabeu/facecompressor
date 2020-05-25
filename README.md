@@ -1,4 +1,4 @@
-# autoencoder
+# Face autoencoder
 
 This project is an experiment on using deep learning autoencoders for coding videos where there is typically a person in the foreground over a mostly static background. Our aim is to explore deep neural network architectures suitable for efficient video coding on video conferencing use cases.
 
