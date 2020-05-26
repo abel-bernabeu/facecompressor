@@ -4,9 +4,13 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 # Environment setup
 
+- Install opencv Ubuntu package (or the equivalent for your preferred OS):
+
+`sudo apt-get install python-opencv`
+
 - Install the needed python packages:
 
-`pip3 install psutil`
+`pip3 install psutil scikit-image opencv-python`
 
 - Double check you have CUDA support by checking the following command line prints "True" rather than "False":
 
