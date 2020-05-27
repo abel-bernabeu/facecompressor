@@ -1,6 +1,6 @@
 import argparse
+import autoencoder
 import sys
-import torch
 
 def addTrainablesArg(parser):
     parser.add_argument('--trainables', dest='trainables', help='Trainable parameters directory')
@@ -32,11 +32,8 @@ decode_parser.add_argument('--output-image', dest='output_image', help='Output i
 opts = parser.parse_args()
 
 if opts.action == 'train':
-    if (not torch.cuda.is_available()):
-        print('Error: CUDA is needed for training')
-        sys.exit(0)
-    print ('TODO: training')
+    autoencoder.train()
 elif opts.action == 'encode':
-    print ('TODO: encoding')
+    autoencoder.encode()
 elif opts.action == 'decode':
-    print ('TODO: decoding')
+    autoencoder.decode()
