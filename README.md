@@ -30,5 +30,5 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 - Get the YouTubers dataset:
 
-`python3 download.py`
+`python3 downloader.py`
 
