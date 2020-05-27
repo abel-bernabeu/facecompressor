@@ -4,9 +4,9 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 # Environment setup
 
-- Install opencv Ubuntu package (or the equivalent for your preferred OS):
+- Install opencv and jupyter packages on Ubuntu (or the equivalent for your preferred OS):
 
-`sudo apt-get install python-opencv`
+`sudo apt-get install python-opencv jupyter`
 
 - Install the needed python packages:
 
