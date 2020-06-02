@@ -32,3 +32,6 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 `python3 downloader.py`
 
+# PyCharm
+
+https://www.jetbrains.com/help/pycharm/github.html
