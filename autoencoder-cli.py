@@ -1,6 +1,5 @@
 import argparse
 import autoencoder
-import sys
 
 def addTrainablesArg(parser):
     parser.add_argument('--trainables', dest='trainables', help='Trainable parameters directory')
