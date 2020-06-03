@@ -10,7 +10,7 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 - Install the needed python packages:
 
-`pip3 install psutil scikit-image opencv-python`
+`pip3 install psutil scikit-image opencv-python pytest`
 
 - Double check you have CUDA support by checking the following command line prints "True" rather than "False":
 
