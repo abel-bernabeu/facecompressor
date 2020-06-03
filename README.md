@@ -37,8 +37,8 @@ Optionally, if you are using PyCharm you may want to also follow the GitHub setu
 https://www.jetbrains.com/help/pycharm/github.html
 
 
-# Run tests
+# Test suite
 
-All the unit and integration tests are discovered with "pytest" instrospection, so you just need to execute one command for executing them all:
+All the unit and integration tests are discovered with "pytest" instrospection, so you just need to type one command for executing them all:
 
 `pytest`
