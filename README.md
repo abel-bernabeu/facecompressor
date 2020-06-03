@@ -30,7 +30,7 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 - Get the YouTubers dataset:
 
-`python3 downloader.py`
+`python3 tools/downloader.py`
 
 # PyCharm
 
