@@ -32,6 +32,8 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 `python3 tools/downloader.py`
 
-# PyCharm
+# GitHub setup for PyCharm
+
+If you are using PyCharm you may want to also follow the GitHub setup instructions from the JetBrains website:
 
 https://www.jetbrains.com/help/pycharm/github.html
