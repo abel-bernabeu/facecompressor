@@ -39,6 +39,6 @@ https://www.jetbrains.com/help/pycharm/github.html
 
 # Test suite
 
-All the unit and integration tests are discovered with "pytest" instrospection, so you just need to type one command for executing them all:
+All the unit and integration tests are discovered with "pytest" introspection, so you just need to type one command for executing them all:
 
 `pytest`
