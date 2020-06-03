@@ -35,3 +35,10 @@ This project is an experiment on using deep learning autoencoders for coding vid
 Optionally, if you are using PyCharm you may want to also follow the GitHub setup instructions from the JetBrains website:
 
 https://www.jetbrains.com/help/pycharm/github.html
+
+
+# Run tests
+
+All the unit and integration tests are discovered with "pytest" instrospection, so you just need to execute one command for executing them all:
+
+`pytest`
