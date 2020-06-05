@@ -30,7 +30,7 @@ This project is an experiment on using deep learning autoencoders for coding vid
 
 - Get the YouTubers dataset:
 
-`python3 tools/downloader.py`
+`python3 autoencoder/tools/downloader.py`
 
 Optionally, if you are using PyCharm you may want to also follow the GitHub setup instructions from the JetBrains website:
 
