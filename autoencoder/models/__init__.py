@@ -1,5 +1,6 @@
 import torch
 import sys
+import autoencoder.image
 
 def train():
     if (not torch.cuda.is_available()):
@@ -9,6 +10,8 @@ def train():
 
 def encode():
     print ('TODO: encoding')
+    autoencoder.image.save()
+
 
 def decode():
     print('TODO: decoding')
