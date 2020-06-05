@@ -1,5 +1,5 @@
 import argparse
-import autoencoder
+import public
 
 def addTrainablesArg(parser):
     parser.add_argument('--trainables', dest='trainables', help='Trainable parameters directory')
@@ -31,8 +31,8 @@ decode_parser.add_argument('--output-image', dest='output_image', help='Output i
 opts = parser.parse_args()
 
 if opts.action == 'train':
-    autoencoder.train()
+    public.train()
 elif opts.action == 'encode':
-    autoencoder.encode()
+    public.encode()
 elif opts.action == 'decode':
-    autoencoder.decode()
+    public.decode()
