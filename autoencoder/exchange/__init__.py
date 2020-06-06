@@ -42,7 +42,7 @@ def test_bit_stream_writer():
         stream.put(1,4)
         stream.put(4,4)
         stream.put(66,8)
-        stream.put(67,8)
+        stream.put(67,7)
         stream.write(filename)
         with open(filename, 'r') as file:
             data = file.read()
