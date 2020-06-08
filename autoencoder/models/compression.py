@@ -41,7 +41,7 @@ class Upscale2x2(torch.nn.Module):
 
     def forward(self, x):
         """
-        Upscales in 2x2 blocks to an RGB image, so it gets
+        Upscales in 2x2 blocks an RGB image, so it gets
         doubled in height and width.
         """
         # TODO put a line here as part of issue #1
