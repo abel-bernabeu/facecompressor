@@ -10,10 +10,8 @@ def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=
     passed as an argument. The returned tuple is intended for storing an
     fp32 without loss.
     """
-    split = math.frexp(value)
-    float_mantissa = split[0]
-    float_exponent = split[1]
-    if (float_mantissa > 0):
+    float_mantissa, float_exponent = math.frexp(value)
+    if (float_mantissa >= 0):
         sign = 0
     else:
         sign = 1
