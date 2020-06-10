@@ -198,7 +198,7 @@ def test_bit_streamer():
         value = stream.get(8)
         assert(value == 0x43)
 
-        # Check that floats can be put and get without loss
+        # Check that floats can be put and got without loss
         values = [2.33434, -1012.2323209999, -12.39212445433389]
         for value in values:
             stream.put_double(value)
