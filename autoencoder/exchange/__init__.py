@@ -7,7 +7,7 @@ mantissa_bits = 53
 
 def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=mantissa_bits):
     """
-    Returns a triplet with 1 bit sign, an 11 bits unsigned integer exponent and a 53 bits
+    Returns a triplet with a 1 bit sign, an 11 bits unsigned integer exponent and a 53 bits
     unsigned integer mantissa. The returned triplet can be used to fully reconstruct the
     fp64 value passed as an argument.
     """
