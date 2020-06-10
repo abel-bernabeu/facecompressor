@@ -7,10 +7,9 @@ mantissa_bits = 53
 
 def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=mantissa_bits):
     """
-    Returns a 1 bit sign, an 11-bit unsigned integer exponent and a 53-bits
-    unsigned mantissa that can be used to fully reconstruct the fp64 value
-    passed as an argument. The returned tuple is intended for storing an
-    fp64 without loss.
+    Returns a triplet with 1 bit sign, an 11 bits unsigned integer exponent and a 53 bits
+    unsigned integer mantissa. The returned triplet can be used to fully reconstruct the
+    fp64 value passed as an argument.
     """
     float_mantissa, float_exponent = math.frexp(value)
     if (float_mantissa >= 0):
@@ -24,8 +23,8 @@ def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=
 
 def from_sign_exponent_mantissa(sign, exponent, mantissa, exponent_bits=exponent_bits, mantissa_bits=mantissa_bits):
     """
-    Returns an fp64 from a 1 bit sign, an 11-bit integer exponent and a 53-bits
-    unsigned mantissa.
+    Returns an fp64 from a 1 bit sign, an 11 bit unsigned integer exponent and a
+    53 bit unsigned integer mantissa.
     """
     if (sign):
         signed_mantissa = - mantissa
