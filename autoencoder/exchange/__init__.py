@@ -1,14 +1,16 @@
 import math
 
-exponent_bits = 8
-mantissa_bits = 55
+
+exponent_bits = 11
+mantissa_bits = 53
+
 
 def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=mantissa_bits):
     """
-    Returns a 1 bit sign, an 8-bit unsigned integer exponent and a 55-bits
-    unsigned mantissa that can be used to fully reconstruct the fp32 value
+    Returns a 1 bit sign, an 11-bit unsigned integer exponent and a 53-bits
+    unsigned mantissa that can be used to fully reconstruct the fp64 value
     passed as an argument. The returned tuple is intended for storing an
-    fp32 without loss.
+    fp64 without loss.
     """
     float_mantissa, float_exponent = math.frexp(value)
     if (float_mantissa >= 0):
@@ -16,13 +18,13 @@ def to_sign_exponent_mantissa(value, exponent_bits=exponent_bits, mantissa_bits=
     else:
         sign = 1
     exponent = int(float_exponent + 2**(exponent_bits - 1))
-    mantissa = int(abs(float_mantissa) * (2**mantissa_bits - 1))
+    mantissa = int(abs(float_mantissa) * 2**mantissa_bits)
     return sign, exponent, mantissa
 
 
 def from_sign_exponent_mantissa(sign, exponent, mantissa, exponent_bits=exponent_bits, mantissa_bits=mantissa_bits):
     """
-    Returns an fp32 from a 1 bit sign, an 8-bit integer exponent and a 55-bits
+    Returns an fp64 from a 1 bit sign, an 11-bit integer exponent and a 53-bits
     unsigned mantissa.
     """
     if (sign):
@@ -30,7 +32,7 @@ def from_sign_exponent_mantissa(sign, exponent, mantissa, exponent_bits=exponent
     else:
         signed_mantissa = mantissa
     signed_exponent = exponent - 2**(exponent_bits - 1)
-    norm_signed_mantissa = float(signed_mantissa) / float(2**mantissa_bits - 1)
+    norm_signed_mantissa = float(signed_mantissa) / float(2**mantissa_bits)
     return math.ldexp(norm_signed_mantissa, signed_exponent)
 
 
@@ -60,16 +62,16 @@ class BitStreamer:
             self.getpos = 0
         return value
 
-    def put_float(self, value):
+    def put_double(self, value):
         sign, exponent, mantissa = to_sign_exponent_mantissa(value)
-        self.put(sign, 1)
-        self.put(exponent, exponent_bits)
         self.put(mantissa, mantissa_bits)
+        self.put(exponent, exponent_bits)
+        self.put(sign, 1)
 
-    def get_float(self):
-        sign = self.get(1)
-        exponent = self.get(exponent_bits)
+    def get_double(self):
         mantissa = self.get(mantissa_bits)
+        exponent = self.get(exponent_bits)
+        sign = self.get(1)
         return from_sign_exponent_mantissa(sign, exponent, mantissa)
 
     def pad(self, num_bits=8):
@@ -114,8 +116,8 @@ def save_tensors(filename, tensors, per_channel_min_value, per_channel_max_value
         for batch_elem in range(tensor.shape[0]):
             for channel in range(tensor.shape[1]):
                 numbits = per_channel_numbits[batch_elem][channel]
-                stream.put_float(per_channel_min_value[batch_elem][channel])
-                stream.put_float(per_channel_max_value[batch_elem][channel])
+                stream.put_double(per_channel_min_value[batch_elem][channel])
+                stream.put_double(per_channel_max_value[batch_elem][channel])
                 stream.put(per_channel_numbits[batch_elem][channel], 6)
                 for row in range(tensor.shape[2]):
                     for col in range(tensor.shape[3]):
@@ -139,8 +141,8 @@ def load_tensors(filename, tensors, per_channel_min_value, per_channel_max_value
         for batch_elem in range(tensor.shape[0]):
             for channel in range(tensor.shape[1]):
                 numbits = per_channel_numbits[batch_elem][channel]
-                stream.put_float(per_channel_min_value[batch_elem][channel])
-                stream.put_float(per_channel_max_value[batch_elem][channel])
+                stream.put_double(per_channel_min_value[batch_elem][channel])
+                stream.put_double(per_channel_max_value[batch_elem][channel])
                 stream.put(per_channel_numbits[batch_elem][channel], 6)
                 for row in range(tensor.shape[2]):
                     for col in range(tensor.shape[3]):
@@ -200,6 +202,6 @@ def test_bit_streamer():
         # Check that floats can be put and get without loss
         values = [2.33434, -1012.2323209999, -12.39212445433389]
         for value in values:
-            stream.put_float(value)
-            read_value = stream.get_float()
+            stream.put_double(value)
+            read_value = stream.get_double()
             assert(value == read_value)
