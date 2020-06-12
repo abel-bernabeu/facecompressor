@@ -1,4 +1,6 @@
 import math
+import torch
+import autoencoder.models.quantization
 
 
 exponent_bits = 11
@@ -94,60 +96,187 @@ class BitStreamer:
             self.bits = []
 
     def read(self, filename):
-        with open(filename, 'r') as file:
+        with open(filename, 'rb') as file:
             read_char = file.read(1)
             while read_char:
                 self.put(ord(read_char), 8)
                 read_char = file.read(1)
 
 
-def save_tensors(filename, tensors, per_channel_min_value, per_channel_max_value, per_channel_numbits):
+def wrap_in_a_single_element_batch(tensor):
+    sizes = [1]
+    for element in tensor.shape:
+        sizes.append(element)
+    return tensor.reshape(*sizes)
+
+
+revision = 0
+tensor_start_marker  = 12349
+tensor_end_marker = 29913
+
+
+def save(filename, model_id, tensor_list, per_channel_num_bits_list, batch_element):
+
+    quantize = autoencoder.models.quantization.Quantize()
+
     stream = BitStreamer()
-    stream.put(len(tensors), ord('T'))
-    stream.put(len(tensors), ord('X'))
-    stream.put(len(tensors), 8)
-    for tensor in tensors:
-        tensor.cpu()
-        stream.put(tensor.shape[0], 16)
-        stream.put(tensor.shape[1], 16)
-        stream.put(tensor.shape[2], 16)
-        stream.put(tensor.shape[3], 16)
-        for batch_elem in range(tensor.shape[0]):
-            for channel in range(tensor.shape[1]):
-                numbits = per_channel_numbits[batch_elem][channel]
-                stream.put_double(per_channel_min_value[batch_elem][channel])
-                stream.put_double(per_channel_max_value[batch_elem][channel])
-                stream.put(per_channel_numbits[batch_elem][channel], 6)
-                for row in range(tensor.shape[2]):
-                    for col in range(tensor.shape[3]):
-                        value = int(tensor[batch_elem][channel][row][col])
-                        stream.put(value, numbits)
+
+    stream.put(ord('Q'), 8)
+    stream.put(ord('T'), 8)
+    stream.put(ord('X'), 8)
+
+    stream.put(revision, 16)
+
+    stream.put(model_id, 16)
+
+    stream.put(len(tensor_list), 16)
+
+    # Stream the tensors
+    for tensor_index, tensor in enumerate(tensor_list):
+
+        # Write a marker for aiding on debugging issues of save/load desynchronization
+        stream.put(tensor_start_marker, 16)
+
+        # Quantize
+        tensor = wrap_in_a_single_element_batch(tensor[batch_element])
+        quantization_select = torch.ones(tensor.shape)
+        per_channel_num_bits = wrap_in_a_single_element_batch(per_channel_num_bits_list[tensor_index][batch_element])
+
+        quant_tensor, per_channel_min, per_channel_max, _ = \
+            quantize(tensor, quantization_select, per_channel_num_bits)
+
+        # Write number of channels
+        stream.put(quant_tensor.shape[1], 16)
+
+        # Write height
+        stream.put(quant_tensor.shape[2], 16)
+
+        # Write width
+        stream.put(quant_tensor.shape[3], 16)
+
+        # per_channel_num_bits shape and quant_tensor should have the same batch_size and num_channels
+        assert (per_channel_num_bits.shape[0] == quant_tensor.shape[0])
+        assert (per_channel_num_bits.shape[1] == quant_tensor.shape[1])
+
+        # The expected per_channel_num_bits shape is batch_size x num_channels
+        assert (per_channel_num_bits.shape[0] == 1)
+        assert (len(per_channel_num_bits.shape) == 2)
+
+        # Stream the channels
+        for channel in range(quant_tensor.shape[1]):
+
+            # Write the min and max values
+            stream.put_double(per_channel_min[0][channel])
+            stream.put_double(per_channel_max[0][channel])
+
+            # Write the number of bits per component
+            num_bits = int(per_channel_num_bits[0][channel])
+            stream.put(num_bits, 6)
+
+            # Write all the components
+            for row in range(quant_tensor.shape[2]):
+                for col in range(quant_tensor.shape[3]):
+                    value = int(quant_tensor[0][channel][row][col])
+                    stream.put(value, num_bits)
+
+        # Write a marker for aiding on debugging issues of save/load desynchronization
+        stream.put(tensor_end_marker, 16)
+
     stream.write(filename)
 
 
-def load_tensors(filename, tensors, per_channel_min_value, per_channel_max_value, per_channel_numbits):
-    result = []
+def load(filename):
+
+    dequantize = autoencoder.models.quantization.Dequantize()
+
     stream = BitStreamer()
-    stream.put(len(tensors), ord('T'))
-    stream.put(len(tensors), ord('X'))
-    stream.put(len(tensors), 8)
-    for tensor in tensors:
-        tensor.cpu()
-        stream.put(tensor.shape[0], 16)
-        stream.put(tensor.shape[1], 16)
-        stream.put(tensor.shape[2], 16)
-        stream.put(tensor.shape[3], 16)
-        for batch_elem in range(tensor.shape[0]):
-            for channel in range(tensor.shape[1]):
-                numbits = per_channel_numbits[batch_elem][channel]
-                stream.put_double(per_channel_min_value[batch_elem][channel])
-                stream.put_double(per_channel_max_value[batch_elem][channel])
-                stream.put(per_channel_numbits[batch_elem][channel], 6)
-                for row in range(tensor.shape[2]):
-                    for col in range(tensor.shape[3]):
-                        value = int(tensor[batch_elem][channel][row][col])
-                        stream.put(value, numbits)
-    stream.write(filename)
+    stream.read(filename)
+
+    # Read the header
+    header1 = stream.get(8)
+    header2 = stream.get(8)
+    header3 = stream.get(8)
+
+    is_valid_header = header1 == ord('Q') and header2 == ord('T') and header3 == ord('X')
+    if not is_valid_header:
+        raise Exception("Wrong header")
+
+    read_format_revision = stream.get(16)
+
+    if not read_format_revision is revision:
+        raise Exception("Wrong format revision")
+
+    # Read the model id
+    model_id = stream.get(16)
+
+    # Read the number of tensors
+    num_tensors = stream.get(16)
+
+    tensor_list = []
+
+    for tensor_index in range(num_tensors):
+
+        # Read a marker for aiding on debugging issues of save/load desynchronization
+        marker = stream.get(16)
+        assert(marker == tensor_start_marker)
+
+        # Read number of channels
+        num_channels = stream.get(16)
+
+        # Read height
+        height = stream.get(16)
+
+        # Read width
+        width = stream.get(16)
+
+        # Create a tensor for number of bits per channel
+        per_channel_num_bits = torch.zeros(1, num_channels)
+
+        # Create a tensor for number of bits per channel
+        per_channel_min = torch.zeros(1, num_channels)
+
+        # Create a tensor for number of bits per channel
+        per_channel_max = torch.zeros(1, num_channels)
+
+        # Create a new tensor with zeros
+        quant_tensor = torch.zeros(1, num_channels, height, width)
+
+        # Read the channels
+        for channel in range(num_channels):
+
+            # Read the min and max values
+            min = stream.get_double()
+            max = stream.get_double()
+
+            # Read the number of bits per component
+            num_bits = stream.get(6)
+
+            # Store the min
+            per_channel_min[0][channel] = min
+
+            # Store the max
+            per_channel_max[0][channel] = max
+
+            # Store the number of bits
+            per_channel_num_bits[0][channel] = num_bits
+
+            # Store all the components
+            for row in range(height):
+                for col in range(width):
+                    value = stream.get(num_bits)
+                    quant_tensor[0][channel][row][col] = float(value)
+
+        # Read a marker for aiding on debugging issues of save/load desynchronization
+        marker = stream.get(16)
+        assert(marker == tensor_end_marker)
+
+        # Dequantize
+        tensor = dequantize(quant_tensor, per_channel_min, per_channel_max, per_channel_num_bits)
+
+        # Append the dequantized tensor
+        tensor_list.append(tensor)
+
+    return model_id, tensor_list
 
 
 def test_float_storage():
@@ -204,3 +333,111 @@ def test_bit_streamer():
             stream.put_double(value)
             read_value = stream.get_double()
             assert(value == read_value)
+
+
+def save_load_and_compare_test_case(filename, model_id, tensor_list, per_channel_num_bits_list, batch_element):
+
+    save(filename, model_id, tensor_list, per_channel_num_bits_list, batch_element)
+    loaded_model_id, loaded_tensor_list = load(filename)
+
+    assert(model_id == loaded_model_id)
+    assert(len(tensor_list) == len(loaded_tensor_list))
+
+    # Create a quantizer and a dequantizer
+    quantize = autoencoder.models.quantization.Quantize()
+    dequantize = autoencoder.models.quantization.Dequantize()
+
+    for tensor_index, tensor in enumerate(tensor_list):
+
+        # Quantize and dequantize, then compare with the loaded tensor
+        tensor = wrap_in_a_single_element_batch(tensor[batch_element])
+        quantization_select = torch.ones(tensor.shape)
+        per_channel_num_bits = wrap_in_a_single_element_batch(per_channel_num_bits_list[tensor_index][batch_element])
+
+        quant_tensor, per_channel_min, per_channel_max, result_per_channel_num_bits = \
+            quantize(tensor, quantization_select, per_channel_num_bits)
+
+        reconstructed = dequantize(quant_tensor, per_channel_min, per_channel_max, result_per_channel_num_bits)
+
+        loaded_tensor = loaded_tensor_list[0][tensor_index]
+
+        assert(torch.allclose(reconstructed, loaded_tensor))
+
+
+def test_save_load():
+
+    from testfixtures import TempDirectory
+    import os
+    with TempDirectory() as d:
+
+        # Create temporary directory
+        d.create()
+        filename = "exchange.qtx"
+        os.chdir(d.getpath("") )
+
+        # A input tensor for testing with batch=2, channels=3, height=2, width=4
+
+        x = torch.tensor(
+            [
+                # Batch element 0
+                [
+                    [  # Channel 0 of batch element 0
+                        [1., 2, 3, 4],
+                        [5, 6, 7, 8],
+                    ],
+                    [  # Channel 1 of batch element 0
+                        [9, 10, 11, 12],
+                        [13, 14, 15, 16],
+                    ],
+                    [  # Channel 3 of batch element 0
+                        [17, 18, 19, 20],
+                        [21, 22, 23, 24],
+                    ],
+                ],
+                # Batch element 1
+                [
+                    [  # Channel 0 of batch element 1
+                        [25, 27, 29, 31],
+                        [33, 35, 37, 39],
+                    ],
+                    [  # Channel 1 of batch element 1
+                        [41, 43, 45, 47],
+                        [49, 51, 53, 55],
+                    ],
+                    [  # Channel 3 of batch element 1
+                        [57, 59, 61, 63],
+                        [65, 67, 69, 71],
+                    ],
+                ],
+            ],
+        )
+
+        per_channel_num_bits = torch.tensor(
+            [
+                # Batch element 0
+                [
+                    # Channel 0 of batch element 0
+                    1.,
+                    # Channel 1 of batch element 0
+                    2,
+                    # Channel 3 of batch element 0
+                    4,
+                ],
+                # Batch element 1
+                [
+                    # Channel 0 of batch element 1
+                    8,
+                    # Channel 1 of batch element 1
+                    16,
+                    # Channel 1 of batch element 1
+                    1,
+                ],
+            ],
+        )
+
+        model_id = 6789
+        tensor_list = [x]
+        per_channel_num_bits_list = [per_channel_num_bits]
+        batch_element = 1
+
+        save_load_and_compare_test_case(filename, model_id, tensor_list, per_channel_num_bits_list, batch_element)
