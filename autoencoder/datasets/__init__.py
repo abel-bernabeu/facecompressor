@@ -77,7 +77,7 @@ class CropsDataset(data.Dataset):
                 if image.height % block_height > 0:
                     bottom = block_height - image.height % block_height
                 else:
-                    borrom = 0
+                    bottom = 0
 
                 image = functional.pad(image, padding=(left, top, right, bottom), fill=0, padding_mode='reflect')
 
