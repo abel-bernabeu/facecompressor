@@ -2,6 +2,7 @@ import torch.utils.data as data
 import torchvision.transforms.functional as functional
 import os
 from PIL import Image
+from tqdm import trange
 
 
 class CropsDataset(data.Dataset):
@@ -42,55 +43,42 @@ class CropsDataset(data.Dataset):
     plt.show()
     """
 
-    def __init__(self, directory, block_width, block_height, train=True, transform=None, download=False):
-
-        super(CropsDataset).__init__()
+    def __init__(self, directory, block_width, block_height, subset_size=None, assume_fixed_size=True):
 
         self.block_width = block_width
         self.block_height = block_height
-        self.images = []
-        self.original_widths = []
-        self.original_heights = []
+
+        self.image_filenames = []
         self.image_for_index = []
         self.tile_for_index = []
 
         for _, _, filenames in os.walk(directory):
-            for filename in filenames:
 
+            sorted_filenames = sorted(filenames)
+
+            if subset_size is not None:
+                 sorted_filenames = sorted_filenames[-subset_size:]
+
+            for filename in sorted_filenames:
                 filename = os.path.join(directory, filename)
+                self.image_filenames.append(filename)
 
-                image = Image.open(filename)
+        for i in trange(len(self.image_filenames), desc="Collecting sizes from images in " + directory):
 
-                # Save the dimensions before any padding
-                self.original_widths.append(image.width)
-                self.original_heights.append(image.height)
-
-                # If needed pad with reflection on right and bottom edges
-                left = 0
-                top = 0
-
-                if image.width % block_width > 0:
-                    right = block_width - image.width % block_width
-                else:
-                    right = 0
-
-                if image.height % block_height > 0:
-                    bottom = block_height - image.height % block_height
-                else:
-                    bottom = 0
-
-                image = functional.pad(image, padding=(left, top, right, bottom), fill=0, padding_mode='reflect')
-
-                self.images.append(image)
+            if not assume_fixed_size:
+                image = Image.open(self.image_filenames[i])
                 height_blocks = self.get_height_blocks(image)
                 width_blocks = self.get_width_blocks(image)
+            else:
+                height_blocks = 1
+                width_blocks = 1
 
-                image_tile_index = 0
-                for row_block in range(height_blocks):
-                    for col_block in range(width_blocks):
-                        self.image_for_index.append(len(self.images) - 1)
-                        self.tile_for_index.append(image_tile_index)
-                        image_tile_index += 1
+            image_tile_index = 0
+            for row_block in range(height_blocks):
+                for col_block in range(width_blocks):
+                    self.image_for_index.append(i)
+                    self.tile_for_index.append(image_tile_index)
+                    image_tile_index += 1
 
     def get_width_blocks(self, image):
         return (image.width + self.block_width - 1) // self.block_width
@@ -112,10 +100,31 @@ class CropsDataset(data.Dataset):
         rather than learning to reproduce the padding. Those models can use the
         returned crop width and height.
         """
+
         image_index = self.image_for_index[index]
-        image = self.images[image_index]
-        original_width = self.original_widths[image_index]
-        original_height = self.original_heights[image_index]
+
+        filename = self.image_filenames[image_index]
+        image = Image.open(filename)
+
+        # If needed pad with reflection on right and bottom edges
+        left = 0
+        top = 0
+
+        if image.width % self.block_width > 0:
+            right = self.block_width - self.image.width % self.block_width
+        else:
+            right = 0
+
+        if image.height % self.block_height > 0:
+            bottom = self.block_height - self.image.height % self.block_height
+        else:
+            bottom = 0
+
+        original_width = image.width
+        original_height = image.height
+
+        image = functional.pad(image, padding=(left, top, right, bottom), fill=0, padding_mode='reflect')
+
         index = self.tile_for_index[index]
 
         block_column_index = index % self.get_width_blocks(image)
