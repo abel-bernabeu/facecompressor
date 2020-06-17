@@ -22,30 +22,28 @@ class Downscale2x2(torch.nn.Module):
 
     def __init__(self, input_width, input_height):
         super(Downscale2x2, self).__init__()
-        # TODO put a line here as part of issue #1
+        self.operator = torch.nn.AvgPool2d(kernel_size=(2,2), stride=(2,2))
 
     def forward(self, x):
         """
         Applies a convolution in 2x2 blocks to an RGB image, so it gets
         downsized to half in height and width.
         """
-        # TODO put a line here as part of issue #1
-        return x
+        return self.operator(x)
 
 
 class Upscale2x2(torch.nn.Module):
 
     def __init__(self, input_width, input_height):
         super(Upscale2x2, self).__init__()
-        # TODO put a line here as part of issue #1
+        self.operator = torch.nn.Upsample(size=None, scale_factor=(2, 2), mode="bilinear")
 
     def forward(self, x):
         """
         Upscales in 2x2 blocks an RGB image, so it gets
         doubled in height and width.
         """
-        # TODO put a line here as part of issue #1
-        return x
+        return self.operator(x)
 
 
 class MockAutoencoder(CompressionAutoencoder):
