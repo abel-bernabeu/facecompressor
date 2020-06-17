@@ -63,7 +63,12 @@ class CropsDataset(data.Dataset):
                 filename = os.path.join(directory, filename)
                 self.image_filenames.append(filename)
 
-        for i in trange(len(self.image_filenames), desc="Collecting sizes from images in " + directory):
+        if not assume_fixed_size:
+            index_range = trange(len(self.image_filenames), desc="Collecting sizes from images in " + directory)
+        else:
+            index_range = range(len(self.image_filenames))
+
+        for i in index_range:
 
             if not assume_fixed_size:
                 image = Image.open(self.image_filenames[i])
