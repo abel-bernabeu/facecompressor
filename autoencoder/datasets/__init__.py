@@ -92,7 +92,7 @@ class CropsDataset(data.Dataset):
         return (image.height + self.block_height - 1) // self.block_height
 
     def __len__(self):
-        return len(self.tile_image)
+        return len(self.image_filenames)
 
     def __getitem__(self, index):
         """
@@ -116,12 +116,12 @@ class CropsDataset(data.Dataset):
         top = 0
 
         if image.width % self.block_width > 0:
-            right = self.block_width - self.image.width % self.block_width
+            right = self.block_width - image.width % self.block_width
         else:
             right = 0
 
         if image.height % self.block_height > 0:
-            bottom = self.block_height - self.image.height % self.block_height
+            bottom = self.block_height - image.height % self.block_height
         else:
             bottom = 0
 
