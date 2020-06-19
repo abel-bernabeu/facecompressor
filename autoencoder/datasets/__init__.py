@@ -150,3 +150,20 @@ class CropsDataset(data.Dataset):
             height = self.block_height
 
         return crop, width, height
+
+
+class XYDimsDataset(data.Dataset):
+
+    def __init__(self, dataset, input_transform, output_transform):
+        self.dataset = dataset
+        self.input_transform = input_transform
+        self.output_transform = output_transform
+
+    def __getitem__(self, index):
+        crop, width, height = self.dataset[index]
+        x = self.input_transform(crop)
+        y = self.output_transform(crop)
+        return x, y, width, height
+
+    def __len__(self):
+        return len(self.dataset)

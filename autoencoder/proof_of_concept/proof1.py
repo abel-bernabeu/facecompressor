@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
-import autoencoder.tools.transforms as transforms
+import autoencoder.transforms as transforms
 import autoencoder.tools.datasets as datasets
 import autoencoder.tools.show as show
 import datetime
