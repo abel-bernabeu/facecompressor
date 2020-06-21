@@ -1,11 +1,6 @@
 from torch.utils.data.dataset import Dataset
 import os
-import torchvision
 import PIL
-from pathlib import Path
-from autoencoder.tools.celeba import CelebA
-import autoencoder.tools.show as show
-import autoencoder.tools.transforms as transforms
 
 
 class ImageFolderAutoEncoderDataset(Dataset):

@@ -7,14 +7,10 @@ import numpy as np
 import os
 import math
 from pathlib import Path
-import autoencoder.tools.datasets as datasets
+import autoencoder.proof_of_concept.datasets as datasets
 import datetime
-import autoencoder.tools.transforms as transforms
+import autoencoder.proof_of_concept.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
-import autoencoder.proof_of_concept.autoencoders as autoencoders
-import autoencoder.proof_of_concept.transition as transition
-import autoencoder.proof_of_concept.color as color
-import autoencoder.proof_of_concept.resnet as resnet
 import autoencoder.proof_of_concept.pyramidal2 as pyramidal
 
 
