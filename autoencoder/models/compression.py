@@ -1,28 +1,38 @@
 import torch
+import torch.nn as nn
 import autoencoder.models.quantization
 
 
 class CompressionAutoencoder(torch.nn.Module):
 
-    def __init__(self, encoder, decoder, input_width, input_height):
+    def __init__(self):
         super(CompressionAutoencoder, self).__init__()
-        self.encoder = encoder
+        self.encoder = None
         self.quantize = autoencoder.models.Quantize()
         self.dequantize = autoencoder.models.Dequantize()
-        self.decoder = decoder
+        self.decoder = None
 
-    def forward(self, x, quantization_select, per_channel_num_bits):
+    def forward(self, x): ##, quantization_select, per_channel_num_bits):
         h = self.encoder(x)
-        hq, per_channel_min, per_channel_max, _ = self.quantize(h, quantization_select, per_channel_num_bits)
-        hdq = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
-        return self.decoder(hdq)
+        #hq, per_channel_min, per_channel_max, _ = self.quantize(h, quantization_select, per_channel_num_bits)
+        #hdq = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
+        y = self.decoder(h)
+        yp = torch.tanh(y)
+        return (yp + 1) * 0.5
 
 
-class Downscale2x2(torch.nn.Module):
+class MockEncoder(torch.nn.Module):
 
     def __init__(self, input_width, input_height):
-        super(Downscale2x2, self).__init__()
-        self.operator = torch.nn.AvgPool2d(kernel_size=(2,2), stride=(2,2))
+        super(MockEncoder, self).__init__()
+        self.operator = nn.Sequential(
+            nn.Conv2d(3, 8, kernel_size=3, stride=2, padding=1, padding_mode='replicate'),
+            nn.ReLU(),
+            nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1, padding_mode='replicate'),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1, padding_mode='replicate'),
+            nn.ReLU(),
+        )
 
     def forward(self, x):
         """
@@ -32,11 +42,19 @@ class Downscale2x2(torch.nn.Module):
         return self.operator(x)
 
 
-class Upscale2x2(torch.nn.Module):
+class MockDecoder(torch.nn.Module):
 
     def __init__(self, input_width, input_height):
-        super(Upscale2x2, self).__init__()
-        self.operator = torch.nn.Upsample(size=None, scale_factor=(2, 2), mode="bilinear")
+        super(MockDecoder, self).__init__()
+        self.operator = nn.Sequential(
+            nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(16, 8, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(8, 8, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ReLU(),
+            nn.Conv2d(8, 3, kernel_size=1, stride=1, padding=0),
+        )
 
     def forward(self, x):
         """
@@ -46,17 +64,9 @@ class Upscale2x2(torch.nn.Module):
         return self.operator(x)
 
 
-class MockAutoencoder(CompressionAutoencoder):
+class MockCompressor(CompressionAutoencoder):
 
     def __init__(self, input_width, input_height):
-        encoder = Downscale2x2(input_width, input_height)
-        decoder = Upscale2x2(input_width, input_height)
-        super(CompressionAutoencoder, self), encoder, decoder, input_width, input_height.__init__()
-
-
-def test_mockautoencoder():
-    """
-    A test instantiating the MockAutoencoder just to have some minimal confidence the
-    super methods get sensible parameters passed.
-    """
-    autoencoder = MockAutoencoder(input_width=256, input_height=256)
+        super(CompressionAutoencoder, self).__init__()
+        self.encoder = MockEncoder(input_width, input_height)
+        self.decoder = MockDecoder(input_width, input_height)
