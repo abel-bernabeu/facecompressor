@@ -153,11 +153,19 @@ class CropsDataset(data.Dataset):
 
 
 class XYDimsDataset(data.Dataset):
+    """
+    Returns (x, y, width, height) tuples of transformed image crops, where x is
+    an input crop with the input_transform applied to it, y is the input crop with
+    the output transform applied to it, and width x height are the crop dimensions.
+    """
 
-    def __init__(self, dataset, input_transform, output_transform):
-        self.dataset = dataset
+    def __init__(self, input_transform, output_transform, dataset = None, directory = None, block_width=224, block_height=224, subset_size = None, assume_fixed_size = True):
         self.input_transform = input_transform
         self.output_transform = output_transform
+        if dataset is None:
+            self.dataset = CropsDataset(directory=directory, block_width=block_width, block_height=block_height, subset_size=subset_size, assume_fixed_size=assume_fixed_size)
+        else:
+            self.dataset = dataset
 
     def __getitem__(self, index):
         crop, width, height = self.dataset[index]
