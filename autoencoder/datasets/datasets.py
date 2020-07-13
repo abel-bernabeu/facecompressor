@@ -43,7 +43,7 @@ class CropsDataset(data.Dataset):
     plt.show()
     """
 
-    def __init__(self, directory, block_width, block_height, subset_size=None, assume_fixed_size=True):
+    def __init__(self, directory, block_width, block_height, assume_fixed_size=True):
 
         self.block_width = block_width
         self.block_height = block_height
@@ -55,9 +55,6 @@ class CropsDataset(data.Dataset):
         for _, _, filenames in os.walk(directory):
 
             sorted_filenames = sorted(filenames)
-
-            if subset_size is not None:
-                 sorted_filenames = sorted_filenames[-subset_size:]
 
             for filename in sorted_filenames:
                 filename = os.path.join(directory, filename)
@@ -159,11 +156,11 @@ class XYDimsDataset(data.Dataset):
     the output transform applied to it, and width x height are the crop dimensions.
     """
 
-    def __init__(self, input_transform, output_transform, dataset = None, directory = None, block_width=224, block_height=224, subset_size = None, assume_fixed_size = True):
+    def __init__(self, input_transform, output_transform, dataset = None, directory = None, block_width=224, block_height=224, assume_fixed_size = True):
         self.input_transform = input_transform
         self.output_transform = output_transform
         if dataset is None:
-            self.dataset = CropsDataset(directory=directory, block_width=block_width, block_height=block_height, subset_size=subset_size, assume_fixed_size=assume_fixed_size)
+            self.dataset = CropsDataset(directory=directory, block_width=block_width, block_height=block_height, assume_fixed_size=assume_fixed_size)
         else:
             self.dataset = dataset
 
