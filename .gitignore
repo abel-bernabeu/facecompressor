@@ -2,6 +2,7 @@
 .cache
 env
 data
+share
 .ipynb_checkpoints/
 *.pyc
 *.DS_Store
