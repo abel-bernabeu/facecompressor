@@ -6,7 +6,7 @@ class Quantize(torch.nn.Module):
     def __init__(self):
         super(Quantize, self).__init__()
 
-    def forward(self, x, quantization_select, per_channel_num_bits):
+    def forward(self, x, quantization_select = None, per_channel_num_bits = None):
         """
         During inference quantizes the i-th channel from x according to the
         number of bits requested in per_channel_num_bits[i]
@@ -34,6 +34,9 @@ class Quantize(torch.nn.Module):
         channels  = x.size()[channels_dim_index]
         height = x.size()[rows_dim_index]
         width  = x.size()[cols_dim_index]
+
+        if quantization_select is None:
+            quantization_select = torch.ones(batch, channels)
 
         if per_channel_num_bits is None:
             per_channel_num_bits = 8.0 * torch.ones(batch, channels)
