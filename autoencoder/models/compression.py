@@ -35,10 +35,6 @@ class MockEncoder(torch.nn.Module):
         )
 
     def forward(self, x):
-        """
-        Applies a convolution in 2x2 blocks to an RGB image, so it gets
-        downsized to half in height and width.
-        """
         return self.operator(x)
 
 
@@ -57,11 +53,16 @@ class MockDecoder(torch.nn.Module):
         )
 
     def forward(self, x):
-        """
-        Upscales in 2x2 blocks an RGB image, so it gets
-        doubled in height and width.
-        """
         return self.operator(x)
+
+
+
+class IdentityCompressor(CompressionAutoencoder):
+
+    def __init__(self, input_width, input_height):
+        super(CompressionAutoencoder, self).__init__()
+        self.encoder = nn.Identity(input_width, input_height)
+        self.decoder = nn.Identity(input_width, input_height)
 
 
 class MockCompressor(CompressionAutoencoder):
