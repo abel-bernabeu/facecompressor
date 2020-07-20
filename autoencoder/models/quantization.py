@@ -36,10 +36,10 @@ class Quantize(torch.nn.Module):
         width  = x.size()[cols_dim_index]
 
         if quantization_select is None:
-            quantization_select = torch.ones(batch, channels)
+            quantization_select = torch.ones(batch, channels, height, width).to(x.device)
 
         if per_channel_num_bits is None:
-            per_channel_num_bits = 8.0 * torch.ones(batch, channels)
+            per_channel_num_bits = 8.0 * torch.ones(batch, channels).to(x.device)
 
         per_row_min, _ = torch.min(x, cols_dim_index)
         per_channel_min, _ = torch.min(per_row_min, rows_dim_index)
@@ -55,9 +55,9 @@ class Quantize(torch.nn.Module):
 
         normalized_x = (x - per_column_replicable_min) * per_column_replicable_scale
 
-        bases = 2.0 * torch.ones(batch, channels, height, width)
-        exponents = per_channel_num_bits.reshape(batch, channels, 1, 1)
-        ones = torch.ones(batch, channels, height, width)
+        bases = 2.0 * torch.ones(batch, channels, height, width).to(x.device)
+        exponents = per_channel_num_bits.reshape(batch, channels, 1, 1).to(x.device)
+        ones = torch.ones(batch, channels, height, width).to(x.device)
 
         per_column_quantized_range = torch.pow(bases, exponents) - ones
         in_quantization_range_x = normalized_x * per_column_quantized_range
@@ -93,9 +93,9 @@ class Dequantize(torch.nn.Module):
         height = quantized_x.size()[rows_dim_index]
         width  = quantized_x.size()[cols_dim_index]
 
-        bases = 2.0 * torch.ones(batch, channels, height, width)
-        exponents = per_channel_num_bits.reshape(batch, channels, 1, 1)
-        ones = torch.ones(batch, channels, height, width)
+        bases = 2.0 * torch.ones(batch, channels, height, width).to(quantized_x.device)
+        exponents = per_channel_num_bits.reshape(batch, channels, 1, 1).to(quantized_x.device)
+        ones = torch.ones(batch, channels, height, width).to(quantized_x.device)
         quantized_range = torch.pow(bases, exponents) - ones
 
         normalized_x = quantized_x * torch.reciprocal(quantized_range)
