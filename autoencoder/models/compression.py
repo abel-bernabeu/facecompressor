@@ -2,22 +2,23 @@ import torch
 import torch.nn as nn
 import autoencoder.models.quantization
 
-
 class CompressionAutoencoder(torch.nn.Module):
 
-    def __init__(self):
+    def __init__(self, quantization=False):
         super(CompressionAutoencoder, self).__init__()
         self.encoder = None
-        self.quantize = autoencoder.models.Quantize()
-        self.dequantize = autoencoder.models.Dequantize()
+        if quantization:
+            self.quantize = autoencoder.models.Quantize()
+            self.dequantize = autoencoder.models.Dequantize()
+        else:
+            self.quantize = None
+            self.dequantize = None
         self.decoder = None
 
-    def forward(self, x): ##, quantization_select, per_channel_num_bits):
+    def forward(self, x):
         h = self.encoder(x)
-        #hq, per_channel_min, per_channel_max, _ = self.quantize(h, quantization_select, per_channel_num_bits)
-        #hdq = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
         y = self.decoder(h)
-        yp = torch.tanh(y)
+        yp = torch.nn.functional.hardtanh(y)
         return (yp + 1) * 0.5
 
 
