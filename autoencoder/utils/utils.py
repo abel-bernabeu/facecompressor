@@ -151,7 +151,7 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
     writer = SummaryWriter(hparams['tensorboard_runs'])
 
     # Instantiate optimizer and loss
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr=hparams['lr'])
     criterion = nn.MSELoss()
 
     # Move model to device
