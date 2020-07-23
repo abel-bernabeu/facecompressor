@@ -196,13 +196,7 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
             writer.add_scalar("train_psnr", train_psnr, global_step=epoch)
             writer.add_scalar("test_psnr", test_psnr, global_step=epoch)
 
-            if checkpoint['best_train_loss'] is None or train_loss < checkpoint['best_train_loss']:
-                print('New best model found!')
-
-                # Update best model in the checkpoint
-                checkpoint['best_train_loss'] = train_loss
-                checkpoint['best_epoch'] = epoch
-                checkpoint['best_model'] = model.state_dict()
+            if epoch == hparams['num_epochs'] - 1 or epoch % hparams['inference_freq'] == 0:
 
                 # Show inferences with a few training samples,
                 # one column per sample in (y, x, y_hat) format
@@ -218,7 +212,29 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
 
                 writer.flush()
 
+            if checkpoint['best_train_loss'] is None or train_loss < checkpoint['best_train_loss']:
+
+                # Update best model in the checkpoint
+                checkpoint['best_train_loss'] = train_loss
+                checkpoint['best_epoch'] = epoch
+                checkpoint['best_model'] = model.state_dict()
+
             if epoch == hparams['num_epochs'] - 1 or epoch % hparams['checkpointing_freq'] == 0:
+
+                # Show inferences with a few training samples,
+                # one column per sample in (y, x, y_hat) format
+                few_train_y_hat = inference(model, few_train_x, hparams)
+                grid = torchvision.utils.make_grid(few_train_y + few_train_x + few_train_y_hat, nrow=4)
+                writer.add_image(tag='train', img_tensor=grid, global_step=epoch)
+
+                # Show inferences with a few test samples,
+                # one column per sample in (y, x, y_hat) format
+                few_test_y_hat = inference(model, few_test_x, hparams)
+                grid = torchvision.utils.make_grid(few_test_y + few_test_x + few_test_y_hat, nrow=4)
+                writer.add_image(tag='test', img_tensor=grid, global_step=epoch)
+
+                writer.flush()
+
                 print('Saving checkpoint at epoch ' + str(epoch))
 
                 # Update last model and optimizer in the checkpoint
