@@ -119,10 +119,19 @@ def test_epoch(test_loader, model, criterion, hparams):
 def inference(model, inputs_list, hparams):
     """
     Do an inference with the model for each input tensor from the provided list and
-    return a list with the inference results
+    return three lists, one with the inference results, another with the differences
+    in the [-1,1] range and a third one with the differences scaled up and shifted for
+    visualizing then as images in the [0,1] range.
     """
-    result = []
+
+    color_scale = 8.0
+
+    outputs = []
+    differences = []
+    scaled_differences = []
+
     for x in inputs_list:
+
         num_channels = x.shape[0]
         height = x.shape[1]
         width = x.shape[2]
@@ -130,10 +139,20 @@ def inference(model, inputs_list, hparams):
         single_element_batch = single_element_batch.to(hparams['device'])
         model.to(hparams['device'])
         model.eval()
+
         output = model(single_element_batch)
+        difference = single_element_batch - output
+        scaled_difference = torch.clamp(difference * color_scale, min=-1.0, max=1.0) * 0.5  + 0.5
+       
         output = output.reshape(num_channels, height, width)
-        result.append(output)
-    return result
+        difference = difference.reshape(num_channels, height, width)
+        scaled_difference = scaled_difference.reshape(num_channels, height, width)
+
+        outputs.append(output)
+        differences.append(difference)
+        scaled_differences.append(scaled_difference)
+
+    return outputs, differences, scaled_differences
 
 
 def psnr(mean_square_normalized_error):
@@ -144,6 +163,16 @@ def psnr(mean_square_normalized_error):
 
 def psnr2(mean_square_normalized_error):
     return - 10 * math.log10(max(mean_square_normalized_error, 1e-10))
+
+
+def concat(list):
+    result = None
+    for tensor in list:
+        if result is None:
+            result = tensor
+        else:
+            result = torch.cat((result, tensor), dim=0)
+    return result
 
 
 def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, few_test_x, few_test_y):
@@ -200,15 +229,21 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
 
                 # Show inferences with a few training samples,
                 # one column per sample in (x, y, y_hat) format
-                few_train_y_hat = inference(model, few_train_x, hparams)
-                grid = torchvision.utils.make_grid(few_train_x + few_train_y + few_train_y_hat, nrow=4)
+                few_train_y_hat, few_train_diff, few_train_scaled_diff = inference(model, few_train_x, hparams)
+                grid = torchvision.utils.make_grid(few_train_x + few_train_y + few_train_y_hat + few_train_scaled_diff, nrow=4)
                 writer.add_image(tag='train', img_tensor=grid, global_step=epoch)
+
+                # Show histogram of differences for a few training samples
+                writer.add_histogram(tag="train_diff", values=concat(few_train_diff),  global_step=epoch)
 
                 # Show inferences with a few test samples,
                 # one column per sample in (x, y, y_hat) format
-                few_test_y_hat = inference(model, few_test_x, hparams)
-                grid = torchvision.utils.make_grid(few_test_x + few_test_y + few_test_y_hat, nrow=4)
+                few_test_y_hat, few_test_diff, few_test_scaled_diff  = inference(model, few_test_x, hparams)
+                grid = torchvision.utils.make_grid(few_test_x + few_test_y + few_test_y_hat + few_test_scaled_diff, nrow=4)
                 writer.add_image(tag='test', img_tensor=grid, global_step=epoch)
+
+                # Show histogram of differences for a few training samples
+                writer.add_histogram(tag="test_diff", values=concat(few_test_diff),  global_step=epoch)
 
                 writer.flush()
 
