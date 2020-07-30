@@ -177,7 +177,7 @@ def concat(list):
 
 def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, few_test_x, few_test_y):
     # Create the summary writer
-    writer = SummaryWriter(hparams['tensorboard_runs'])
+    writer = SummaryWriter('share/' + hparams['name'] + '/runs')
 
     # Instantiate optimizer and loss
     optimizer = optim.Adam(model.parameters(), lr=hparams['lr'])
@@ -186,10 +186,13 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
     # Move model to device
     model = model.to(hparams['device'])
 
+    # Checkpoint filename
+    filename = 'share/' + hparams['name'] + "/model.pt"
+
     # Restore previous checkpoint or create new one from scratch
-    if os.path.isfile(hparams['params']):
+    if os.path.isfile(filename):
         print("Restoring from previous checkpoint")
-        checkpoint = torch.load(hparams['params'])
+        checkpoint = torch.load(filename)
     else:
         checkpoint = {
             'best_train_loss': None,
@@ -263,6 +266,6 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
                 checkpoint['last_model'] = model.state_dict()
                 checkpoint['optimizer'] = optimizer.state_dict()
 
-                torch.save(checkpoint, hparams['params'])
+                torch.save(checkpoint, filename)
 
     writer.close()
