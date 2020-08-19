@@ -6,7 +6,7 @@ Our current approach is to simplify the video coding task by treating a video as
 
 As of today, we provide a working PyTorch implementation of the deep learning architecture from the paper "Lossy image compression with compression autoencoders", by Lucas Theis, Wenzhe Shi, Andrew Cunningham & Ferenc Husz, published in 2017 (see the [original paper](https://arxiv.org/pdf/1703.00395v1.pdf) for details). While the original paper described a Theano implementation we have implemented and trained our own models in PyTorch, being able to reproduce the results from the paper.
 
-This repo contains the PyTorch implementation and a training Jupyter notebook that downloads the dataset and pre-trained models, hosted in DropBox. The code was made open source in the hope of encouraging machine learning practitioners to use it as a baseline in their own research.
+This repo contains the PyTorch implementation and a training Jupyter notebook that downloads our dataset and pre-trained models, hosted in DropBox. The code was made open source in the hope of encouraging machine learning practitioners to use it as a baseline in their own research.
 
 # Google Colab setup
 
