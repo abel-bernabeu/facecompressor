@@ -1,4 +1,4 @@
-# Compressing face images with autoencoders
+# Face images compressor
 
 The aim of this project is to experiment with deep learning autoencoders for coding images where there is typically a person in the foreground over a mostly static background. Our aim is to explore deep neural network architectures suitable for efficient communication on video conferencing use cases.
 
