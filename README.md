@@ -16,7 +16,7 @@ The data for JPEG and JPEG2000 was borrowed from an independent group of researc
 
 The figure was digitized to a .csv file by means of the Web Plot Digitizer tool (available [here](https://apps.automeris.io/wpd/) as of 21st August 2020). The resulting .csv file was then loaded in LibreOffice Calc and complemented with the data from my autoencoder-based codec.
 
-![comparison](graphs/compare.svg "Compression methods comparison")
+![comparison](graphs/compare.png "Compression methods comparison")
 
 # Google Colab setup
 
