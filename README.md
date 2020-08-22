@@ -20,7 +20,7 @@ The figure was digitized to .csv file by means of the Web Plot Digitizer tool (a
 
 # Google Colab setup
 
-The easiest way to experiment with the provided models is possibly to load compressor_train.ipynb in Google Colab. This workflow is especially useful if you only intend to browse the TensorBoards for the different models.
+The easiest way to experiment with the provided models is possibly to load [train.ipynb](train.ipynb) in Google Colab. This workflow is especially useful if you only intend to browse the TensorBoards for the different models.
 
 Open the file and run all the cells in order to download the dataset, trained models and TensorBoard logs.
 
@@ -54,7 +54,7 @@ If you intend to do more serious work you may want to setup your own development
 
 - Run the training notebook to get the latest version of the dataset and trained models:
 
-`runipy compressor_train.ipynb`
+`runipy train.ipynb`
 
 # Test suite
 
