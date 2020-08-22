@@ -1,0 +1,1 @@
+This directory contains the data for the PSNR per compression ratio plot that I present in the README.md from the root directory.
