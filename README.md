@@ -12,7 +12,7 @@ This repo contains the PyTorch implementation and a training Jupyter notebook th
 
 The quality of our best codec lays between classical JPEG and JPEG2000, suggesting that further work on the field can certainly lead to a breakthrough. See the green dot in the following graph, where the PSNR for different compression ratios was plotted. That green dot marks the place of 39.8 dB of PSNR for a 10.66 compression ratio achieved by our best codec so far (the "Autoencoder" data series).
 
-The data for JPEG and JPEG 2000 was borrowed from an independent group of researchers. That data was extracted by reverse engineering the plot from Figure 10 in the paper "JPEG vs. JPEG2000: An Objective Comparison of Image Encoding Quality", by Farzad Ebrahimi, Matthieu Chamik and Stefan Winkler, published in 2004.
+The data for JPEG and JPEG 2000 was borrowed from an independent group of researchers. That data was extracted by reverse engineering the plot from figure 10 in the paper "JPEG vs. JPEG2000: An Objective Comparison of Image Encoding Quality", by Farzad Ebrahimi, Matthieu Chamik and Stefan Winkler, published in 2004.
 
 The figure was digitized to .csv file by means of the Web Plot Digitizer tool (available [here](https://apps.automeris.io/wpd/) as of 21st August 2020). The resulting .csv file was then loaded in LibreOffice Calc and complemented with the data from my autoencoder-based codec.
 
@@ -40,7 +40,7 @@ If you intend to do more serious work you may want to setup your own development
 
 `(echo "import torch"; echo "torch.cuda.is_available()") | python3 -i`
 
-- Double check you have pytorch 1.5 installed in your system:
+- Double check you have pytorch 1.4 installed in your system:
 
 `(echo "import torch"; echo "torch.__version__") | python3 -i`
 
@@ -61,3 +61,7 @@ If you intend to do more serious work you may want to setup your own development
 All the unit and integration tests are discovered with "pytest" introspection, so you just need to type one command for executing them all:
 
 `pytest`
+
+# License
+
+Autoencoder is BSD-style licensed, as found in the [LICENSE](LICENSE) file.
