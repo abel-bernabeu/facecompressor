@@ -3,7 +3,7 @@ import autoencoder
 
 
 def addTrainablesArg(parser):
-    parser.add_argument('--model', dest='model', help='Trained model')
+    parser.add_argument('--model', dest='model', help='Trained model', default='model.pt')
 
 def addExchangeArg(parser):
     parser.add_argument('--exchange', dest='exchange', help='File with exchanged data', required=True)
