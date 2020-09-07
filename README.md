@@ -30,11 +30,11 @@ If you intend to do more serious work you may want to setup your own development
 
 - Install opencv and jupyter packages on Ubuntu (or the equivalent for your preferred OS):
 
-`sudo apt-get install python-opencv runipy`
+`sudo apt-get install python-opencv`
 
 - Install the needed python packages:
 
-`pip3 install psutil scikit-image opencv-python pytest torchvision pandas tqdm torch`
+`pip3 install psutil scikit-image opencv-python pytest torchvision pandas tqdm torch runipy tensorboard`
 
 - Double check you have CUDA support by checking the following command line prints "True" rather than "False":
 
