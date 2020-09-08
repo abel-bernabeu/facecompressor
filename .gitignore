@@ -9,3 +9,5 @@ share
 __pycache__
 *.tar.gz
 *.zip
+decompressed.png
+tmp.qtx
