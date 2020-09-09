@@ -1,0 +1,13 @@
+.idea
+.cache
+env
+data
+share
+.ipynb_checkpoints/
+*.pyc
+*.DS_Store
+__pycache__
+*.tar.gz
+*.zip
+decompressed.png
+tmp.qtx
