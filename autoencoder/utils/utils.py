@@ -1,19 +1,13 @@
-import torch
-import torch.nn as nn
 import autoencoder.datasets
-import autoencoder.models
 import autoencoder.utils
-import torchvision.transforms as transforms
-from torch.utils.tensorboard import SummaryWriter
-import numpy as np
 import datetime
 import os
-import math
+import numpy as np
+import torch
+import torch.nn as nn
 import torch.optim as optim
-import torchvision.utils
-import autoencoder.datasets
-import autoencoder.models
-import autoencoder.utils
+import torchvision.transforms as transforms
+from torch.utils.tensorboard import SummaryWriter
 
 
 def create_dataloaders(hparams):
