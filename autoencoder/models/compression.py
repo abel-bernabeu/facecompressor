@@ -5,35 +5,30 @@ import autoencoder.models.quantization
 
 class CompressionAutoencoder(torch.nn.Module):
 
-    def __init__(self):
+    def __init__(self, quantize = True, num_bits = 8):
         super().__init__()
+
         self.encoder = None
-        self.decoder = None
 
-    def forward(self, x):
-        h = self.encoder(x)
-        y = self.decoder(h)
-        yp = torch.nn.functional.hardtanh(y)
-        return (yp + 1) * 0.5
+        if quantize:
+            self.quantize = autoencoder.models.Quantize()
+            self.dequantize = autoencoder.models.Dequantize()
+        else:
+            self.quantize = None
+            self.dequantize = None
 
-
-class QuantizingCompressionAutoencoder(torch.nn.Module):
-
-    def __init__(self, num_bits):
-        super().__init__()
-        self.encoder = None
         self.num_bits = num_bits
-        self.quantize = autoencoder.models.Quantize()
-        self.dequantize = autoencoder.models.Dequantize()
+
         self.decoder = None
 
     def forward(self, x):
         h = self.encoder(x)
 
-        batch_elems = x.size()[0]
-        per_channel_num_bits = self.num_bits * torch.ones(batch_elems, self.encoder.hidden_state_num_channels).to(x.device)
-        hq, per_channel_min, per_channel_max, per_channel_num_bits = self.quantize(h, quantization_select = None, per_channel_num_bits = per_channel_num_bits)
-        h = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
+        if self.quantize:
+            batch_elems = x.size()[0]
+            per_channel_num_bits = self.num_bits * torch.ones(batch_elems, self.encoder.hidden_state_num_channels).to(x.device)
+            hq, per_channel_min, per_channel_max, per_channel_num_bits = self.quantize(h, quantization_select = None, per_channel_num_bits = per_channel_num_bits)
+            h = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
 
         y = self.decoder(h)
 
@@ -151,21 +146,13 @@ class TwitterDecoder(torch.nn.Module):
 
 class TwitterCompressor(CompressionAutoencoder):
 
-    def __init__(self, hidden_state_num_channels = 96):
-        super().__init__()
+    def __init__(self, hidden_state_num_channels = 24, quantize = True, num_bits = 6):
+        super().__init__(quantize = quantize, num_bits = num_bits)
         self.encoder = TwitterEncoder(hidden_state_num_channels = hidden_state_num_channels)
         self.decoder = TwitterDecoder(hidden_state_num_channels = hidden_state_num_channels)
 
 
-class QuantizingTwitterCompressor(QuantizingCompressionAutoencoder):
-
-    def __init__(self, hidden_state_num_channels = 96, num_bits = 8):
-        super().__init__(num_bits)
-        self.encoder = TwitterEncoder(hidden_state_num_channels = hidden_state_num_channels)
-        self.decoder = TwitterDecoder(hidden_state_num_channels = hidden_state_num_channels)
-
-
-class Compressor(QuantizingTwitterCompressor):
+class Compressor(TwitterCompressor):
 
     def __init__(self):
-        super().__init__(hidden_state_num_channels = 24, num_bits = 6)
+        super().__init__()

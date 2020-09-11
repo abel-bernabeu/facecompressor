@@ -1,2 +1,2 @@
-from .compression import CompressionAutoencoder, QuantizingCompressionAutoencoder, TwitterCompressor, Compressor
+from .compression import CompressionAutoencoder, TwitterCompressor, Compressor
 from .quantization import Quantize, Dequantize
