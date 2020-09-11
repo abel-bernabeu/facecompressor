@@ -200,7 +200,8 @@ def train(hparams, model, train_loader, test_loader, few_train_x, few_train_y, f
             'best_model': None,
             'last_epoch': -1,
             'last_model': model.state_dict(),
-            'optimizer': optimizer.state_dict()
+            'optimizer': optimizer.state_dict(),
+            'hparams' : hparams
         }
 
     # Load model and optimizer from the checkpoint
