@@ -30,18 +30,12 @@ class QuantizingCompressionAutoencoder(torch.nn.Module):
     def forward(self, x):
         h = self.encoder(x)
 
-        batch_dim_index = 0
-        channels_dim_index = 1
-        rows_dim_index = 2
-        cols_dim_index = 3
-
-        batch = x.size()[batch_dim_index]
-
-        per_channel_num_bits = self.num_bits * torch.ones(batch, self.encoder.hidden_state_num_channels).to(x.device)
+        batch_elems = x.size()[0]
+        per_channel_num_bits = self.num_bits * torch.ones(batch_elems, self.encoder.hidden_state_num_channels).to(x.device)
         hq, per_channel_min, per_channel_max, per_channel_num_bits = self.quantize(h, quantization_select = None, per_channel_num_bits = per_channel_num_bits)
-        hd = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
+        h = self.dequantize(hq, per_channel_min, per_channel_max, per_channel_num_bits)
 
-        y = self.decoder(hd)
+        y = self.decoder(h)
 
         yp = torch.nn.functional.hardtanh(y)
 
