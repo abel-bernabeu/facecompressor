@@ -36,7 +36,6 @@ class Context:
         per_channel_num_bits_list = [[self.model.num_bits * torch.ones(self.model.encoder.hidden_state_num_channels)]]
         autoencoder.exchange.save(exchange, 1, tensor_list, per_channel_num_bits_list, 0)
 
-
     def decode(self, exchange, output):
 
         # Load the .qtx file

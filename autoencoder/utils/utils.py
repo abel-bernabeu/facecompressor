@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import autoencoder.datasets
 import autoencoder.models
-import autoencoder.transforms
 import autoencoder.utils
 import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
@@ -21,39 +20,44 @@ def create_dataloaders(hparams):
     # Set the seed to a known state for reproducibility of the training
     torch.manual_seed(0x1234)
 
-    # Create a crops dataset
-    crops = autoencoder.datasets.CropsDataset(
-        "./data/image_dataset_part-a",
+    # Create datasets with all the train and test crops
+    all_train_crops = autoencoder.datasets.CropsDataset(
+        "./data/image_dataset/train",
         block_width=hparams['block_width'],
-        block_height=hparams['block_height'],
-        assume_fixed_size=False)
+        block_height=hparams['block_height'])
+
+    all_test_crops = autoencoder.datasets.CropsDataset(
+        "./data/image_dataset/test",
+        block_width=hparams['block_width'],
+        block_height=hparams['block_height'])
 
     # Random split the original dataset in train, test and discarded datasets
     train_dataset_size = hparams['train_dataset_size']
+    train_crops, _ = \
+        torch.utils.data.random_split(all_train_crops, [train_dataset_size, len(all_train_crops) - train_dataset_size])
+
     test_dataset_size = hparams['test_dataset_size']
-    train_crops, test_crops, _ = \
-        torch.utils.data.random_split(crops, [ \
-            train_dataset_size, \
-            test_dataset_size, \
-            len(crops) - train_dataset_size - test_dataset_size])
+    test_crops, _ = \
+        torch.utils.data.random_split(all_test_crops, [test_dataset_size, len(all_test_crops) - test_dataset_size])
 
     # Create the dataset transforms
     train_input_transform = transforms.Compose([transforms.ToTensor()])
     train_output_transform = transforms.Compose([transforms.ToTensor()])
+
     test_input_transform = transforms.Compose([transforms.ToTensor()])
     test_output_transform = transforms.Compose([transforms.ToTensor()])
 
-    # Wrap the train samples with an XYDimsDataset
-    train_xydims_samples = autoencoder.datasets.XYDimsDataset(train_input_transform, train_output_transform,
-                                                              dataset=train_crops)
+    # Wrap the train and test samples with an XYDimsDataset
+    train_xydims_samples = \
+        autoencoder.datasets.XYDimsDataset(train_input_transform, train_output_transform, dataset=train_crops)
 
-    # Wrap the test samples with an XYDimsDataset
-    test_xydims_samples = autoencoder.datasets.XYDimsDataset(test_input_transform, test_output_transform,
-                                                             dataset=test_crops)
+    test_xydims_samples = \
+        autoencoder.datasets.XYDimsDataset(test_input_transform, test_output_transform, dataset=test_crops)
 
-    # Create data loaders
+    # Create data loaders for train and test samples
     train_loader = torch.utils.data.DataLoader(train_xydims_samples, batch_size=hparams['batch_size'], shuffle=True,
                                                num_workers=hparams['num_workers'])
+
     test_loader = torch.utils.data.DataLoader(test_xydims_samples, batch_size=hparams['batch_size'], shuffle=False,
                                               num_workers=hparams['num_workers'])
 
@@ -65,7 +69,7 @@ def create_dataloaders(hparams):
     for index in range(len(few_train_x)):
         few_train_x[index] = few_train_x[index].to(hparams['device'])
 
-    # Move few_test_y to the same device where the inferences will be left
+    # Move few_train_y to the same device where the inferences will be left
     for index in range(len(few_train_y)):
         few_train_y[index] = few_train_y[index].to(hparams['device'])
 
@@ -77,7 +81,7 @@ def create_dataloaders(hparams):
     for index in range(len(few_test_x)):
         few_test_x[index] = few_test_x[index].to(hparams['device'])
 
-    # Move few_train_y to the same device where the inferences will be left
+    # Move few_test_y to the same device where the inferences will be left
     for index in range(len(few_test_y)):
         few_test_y[index] = few_test_y[index].to(hparams['device'])
 
