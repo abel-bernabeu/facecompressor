@@ -14,6 +14,7 @@ class Context:
         # Load model from the checkpoint
         checkpoint = torch.load(model)
         self.model.load_state_dict(checkpoint['best_model'])
+        self.model.eval()
 
         # Send model to device
         self.model.to('cuda')
