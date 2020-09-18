@@ -10,7 +10,7 @@ This repo contains the PyTorch implementation and a training Jupyter notebook th
 
 # How good are the results compared to standard compression methods?
 
-The quality of our best codec lays between classical JPEG and JPEG2000, suggesting that further work on the field can certainly lead to a breakthrough. See the green dot in the following graph, where the PSNR for different compression ratios was plotted. That green dot marks the place of 39.8 dB of PSNR for a 10.66 compression ratio achieved by our best codec so far.
+The quality of our best codec outperforms classical JPEG and JPEG2000 in terms of PSNR, suggesting that further work on the field can certainly lead to a breakthrough. See the green dot in the following graph, where the PSNR for different compression ratios was plotted. That green dot marks the place of 43.3 dB of PSNR for a 10.66 compression ratio achieved by our best codec so far.
 
 The data for JPEG and JPEG2000 was borrowed from an independent group of researchers. That data was extracted by reverse engineering the plot from figure 10 in the paper "JPEG vs. JPEG2000: An Objective Comparison of Image Encoding Quality", by Farzad Ebrahimi, Matthieu Chamik and Stefan Winkler, published in 2004.
 
