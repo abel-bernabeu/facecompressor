@@ -15,6 +15,9 @@ class Context:
         checkpoint = torch.load(model)
         self.model.load_state_dict(checkpoint['best_model'])
 
+        # Send model to device
+        self.model.to('cuda')
+
     def encode(self, input, exchange):
 
         # Load image and convert to tensor
@@ -28,8 +31,14 @@ class Context:
         width = x.shape[2]
         single_element_batch = x.clone().detach().reshape(1, num_channels, height, width)
 
+        # Send model to device
+        single_element_batch = single_element_batch.to('cuda')
+
         # Encode
         output = self.model.encoder(single_element_batch)
+
+        # Send to CPU
+        output = output.to('cpu')
 
         # Save the intermediate tensor
         tensor_list = [output]
@@ -40,11 +49,18 @@ class Context:
 
         # Load the .qtx file
         loaded_model_id, loaded_tensor_list = autoencoder.exchange.load(exchange)
+        features = loaded_tensor_list[0]
+
+        # Send tensor to device
+        features = features.to('cuda')
 
         # Decode, apply transfer function and remap from [-1,1] to [0,1]
-        y = self.model.decoder(loaded_tensor_list[0])
+        y = self.model.decoder(features)
         y = torch.nn.functional.hardtanh(y)
         y = (y + 1) * 0.5
+
+        # Send tensor to CPU
+        y = y.to('cpu')
 
         # Build a PIL image out of the ouput tensor
         to_image = transforms.ToPILImage()

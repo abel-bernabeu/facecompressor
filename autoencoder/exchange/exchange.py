@@ -139,6 +139,7 @@ def save(filename, model_id, tensor_list, per_channel_num_bits_list, batch_eleme
 
         # Quantize
         tensor = wrap_in_a_single_element_batch(tensor[batch_element])
+        tensor = tensor.to('cpu')
         quantization_select = torch.ones(tensor.shape)
         per_channel_num_bits = wrap_in_a_single_element_batch(per_channel_num_bits_list[tensor_index][batch_element])
 
