@@ -357,6 +357,28 @@ If you intend to do more serious work you may want to setup your own development
 
 `runipy train.ipynb`
 
+# Command line interface
+
+A command line interface is provided for allowing final users to give the compressor a try.
+
+The tool takes an image in .png or .jpeg format and produces a file in a custom image
+exchange format we have called QTX (standing for Quantized Tensor Exchange and
+pronounced "kewtics").
+
+One uses the "encode" command for producing a QTX: 
+
+`python3 cli.py encode --input input.png --exchange tmp.qtx`
+     
+And then we use the decode command for reconstructing the image back:
+
+`python3 cli.py decode --exchange tmp.qtx --output decompressed.png`
+
+As of today there is a known issue with the reconstructed images when the input size is
+not a multiple of eight. If the input image dimensions are not a multiple of eight, then the
+reconstructed image will get padded to a multiple of eight with the padding being
+garbage. Stick to image sizes which are a multiple of eight to workaround the issue,
+and expect a fix to be committed soon.
+
 # Test suite
 
 All the unit and integration tests are discovered with "pytest" introspection, so you just need to type one command for executing them all:
