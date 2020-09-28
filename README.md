@@ -1,17 +1,16 @@
 # Compressing face images
 
 This report describes the implementation and training of a compressive
-autoencoder tailored for the domain of human face images.
+autoencoder tailored for the domain of human face images. 
 
-A Jupyter notebook that scripts the compression experiments described in this report
-is available in the facecompressor GitHub repo (see
-[here](https://github.com/abel-bernabeu/facecompressor/blob/master/train.ipynb)).
+We start describing the dataset used for our experiments and
+then we develop a series of seven experiments leading to a final functional
+compressing model. A Jupyter notebook that scripts the compression experiments
+described in this report is available [here](train.ipynb) for ensuring
+reproducibility.
 
-In this report we start describing the dataset used for our experiments.
-Then we develop a series of seven experiments leading to a final functional
-compressing model. In each of those experiments we craft an incrementally
-more functional prototype or we test a different idea. For each experiment we
-do:
+In each experiment we craft an incrementally more functional prototype or we
+test a different idea. For each of those experiments we do:
 
 - Describe the purpose.
 - Specify the hyper parameters (hparams).
@@ -24,6 +23,8 @@ Note that PSNR and MSE (Mean Square Error) are equivalent in the sense
 that optimizing for the highest PSNR is equivalent to doing it for lowest MSE.
 In this document we prefer to talk in terms of PSNR just because it is a more
 common metric in image quality benchmarks. 
+
+
 
 ## Compiled dataset
 
