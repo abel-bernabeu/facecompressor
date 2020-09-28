@@ -373,9 +373,9 @@ And then we use the decode command for reconstructing the image back:
 
 `python3 cli.py decode --exchange tmp.qtx --output decompressed.png`
 
-As of today there is a known issue with the reconstructed images when the input size is
-not a multiple of eight. If the input image dimensions are not a multiple of eight, then the
-reconstructed image will get padded to a multiple of eight with the padding being
+As of today there is a known issue with the reconstructed images when the input image
+dimensions are not a multiple of eight. If the input dimensions are not a multiple of eight,
+then the reconstructed image will get padded to a multiple of eight with the padding being
 garbage. Stick to image sizes which are a multiple of eight to workaround the issue,
 and expect a fix to be committed soon.
 
