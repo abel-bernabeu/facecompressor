@@ -389,4 +389,4 @@ All the unit and integration tests are discovered with "pytest" introspection, s
 
 # License
 
-Autoencoder is BSD-style licensed, as found in the [LICENSE](LICENSE) file.
+Facecompressor is BSD-style licensed, as found in the [LICENSE](LICENSE) file.
