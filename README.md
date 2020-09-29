@@ -361,9 +361,11 @@ If you intend to do more serious work you may want to setup your own development
 
 A command line interface is provided for allowing final users to give the compressor a try.
 
-The tool takes an image in .png or .jpeg format and produces a file in a custom image
-exchange format we have called QTX (standing for Quantized Tensor Exchange and
-pronounced "kewtics").
+The tool takes as input an image in .png or .jpeg format and produces an exchange file in
+a custom format we have called QTX (standing for Quantized Tensor Exchange and
+pronounced "kewtics"). Even though QTX is used in this project as an image
+exchange format, the format has indeed been designed following an application-agnostic
+approach and it is royalty free.
 
 One uses the "encode" command for producing a QTX: 
 
