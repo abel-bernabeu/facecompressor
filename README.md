@@ -15,7 +15,7 @@ test a different idea. For each of those experiments we do:
 - Describe the purpose.
 - Specify the hyper parameters (hparams).
 - Summarize the relevant results collected from a TensorBoard instance embedded
-  in the training notebook). The results are values of PSNR (Peak Signal to
+  in the training notebook. The results are values of PSNR (Peak Signal to
   Noise Ratio) for the test set, visualizations of the reconstructed images for
   a handful of test samples or depictions of the error at the pixel level.
   
