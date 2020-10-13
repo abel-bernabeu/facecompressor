@@ -13,7 +13,7 @@ In each experiment we craft an incrementally more functional prototype or we
 test a different idea. For each of those experiments we do:
 
 - Describe the purpose.
-- Specify the hyper parameters (hparams).
+- Specify the hyperparameters (hparams).
 - Summarize the relevant results collected from a TensorBoard instance embedded
   in the training notebook. The results are values of PSNR (Peak Signal to
   Noise Ratio) for the test set, visualizations of the reconstructed images for
@@ -96,8 +96,8 @@ do not assume any specific input size. Other relevant training choices are colle
 the following hyperparameters are table. In this experiment (and all the seqsequent ones)
 we train using the Adam optimizer.
  
-|  Hyper parameter name      | Value |   Description    
-|----------------------------|-------|---------------
+|  Hyperparameter name      | Value |   Description    
+|---------------------------|-------|---------------
 |  batch_size                | 32    |  Batch size 
 |  lr                        | 1e-6  |  Learning rate
 |  block_width               | 128   |  Input block width
@@ -128,8 +128,8 @@ damage as a PSNR for the test set below 32 dB.
 
 Again no quantization is provided. The input patch size is changed to 224x224 to match the dataset frame size, just for making the visualization a bit nicer.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size' | 40
 |lr' | 1e-6
 |block_width' | **224**
@@ -153,8 +153,8 @@ On this third experiment we introduce 3 bits quantization of the features. This 
 
 2. The quantizing model in trained with the encoder weights frozen and the quantization and dequantization modules enabled, with the purpose of training the decoder for undoing the quantization.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size | 40
 |lr | 1e-6
 |block_width  | 224
@@ -194,10 +194,10 @@ although but we do not yet perform  quantization. We do not introduce quantizati
 yet because we learned in experiment 3 that it is possible to first train without
 quantization and then introduce the quantization on a second stage.
 
-Notice in the following table the hyper parameter values in bold typography, which are the ones whose values changed from previous experiment.
+Notice in the following table the hyperparameter values in bold typography, which are the ones whose values changed from previous experiment.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size | 40
 |lr | 1e-6
 |block_width | 224
@@ -224,8 +224,8 @@ We do the second stage of training the quantizing model, expecting to confirm on
 
 Similarly to what it was done for experiment 3, the second stage of the training is achieved is by transferring the encoder and decoder weights learned with experiment 4, freezing the encoder weights and further training the decoder for undoing the quantization.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size | 40
 |lr | **1e-8**
 |block_width | 224
@@ -245,8 +245,8 @@ Adding the quantization worsened the test PSNR: went from 40.1 dB to 39.7 dB. Ho
 
 In this experiment we try a radically different approach for training the same model from experiment 4. Rather than running for as many epochs as possible (110K in experiment 4) we do fewer epochs with an increased dataset size (60K samples as opposed to 1K samples in experiment 4) and an increased learning rate.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size | 40
 |lr | **2e-5**
 |block_width | 224
@@ -266,8 +266,8 @@ The approach really pays off, achieving higher accuracy with just 5 days of trai
 
 In this experiment we introduce a 6 bits quantization in the model from experiment 6. For the training we used only 12 additional hours of a Tesla P100.
 
-|  Hyper parameter name      | Value |
-|----------------------------|-------|
+|  Hyperparameter name      | Value |
+|---------------------------|-------|
 |batch_size | 40
 |lr | **1e-8**
 |block_width | 224
