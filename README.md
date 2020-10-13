@@ -80,7 +80,7 @@ We make the addition of batch normalization layers for improved robustness, but 
 The purpose of this experiment is to confirm that we have understood the architecture, and confirm that we can extract features and use them for reconstructing the original image.
 
 The decoder includes an operator the paper authors call "subpixel", consisting on a regular
-convolution (as opposed to transposed) followind by a pixel shuffle. The paper authors
+convolution (as opposed to transposed) followed by a pixel shuffle. The paper authors
 claim that their "subpixel" operator is a better upsampler than transposed convolution.
 It is clamed that subpixel operations do not suffer from the checker board artifacts
 produced by the kernel overlaps on transposed convolutions (see
