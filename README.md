@@ -4,7 +4,7 @@ This report describes the implementation and training of a compressive
 autoencoder tailored for the domain of human face images. 
 
 We start describing the dataset used for our experiments and
-then we develop a series of seven experiments leading to a final functional
+then we develop a series of seven experiments leading to the final
 compressing model. A Jupyter notebook that scripts the compression experiments
 described in this report is available [here](train.ipynb) for ensuring
 reproducibility.
